@@ -94,7 +94,7 @@ int SudokuGenerate(ofstream& output, long n, int pos, long& count)
 		{
 			return 1;
 		}
-		//output << endl;
+		output << endl;
 	}
 	else
 	{
