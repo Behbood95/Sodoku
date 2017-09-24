@@ -166,7 +166,7 @@ int main(int argc, char* argv[])
 		if (argv[1][0] == '-' && argv[1][1] == 'c') 
 		{
 			long n = 0;
-			for (int i = 0; i < string(argv[2]).length(); i++)
+			for (unsigned i = 0; i < string(argv[2]).length(); i++)
 			{
 				if (argv[2][i] < '0' || argv[2][i] > '9')
 				{
