@@ -10,7 +10,7 @@ Sudoku::Sudoku(int n)
 {
 	for (int i = 0; i < GRIDSIZE; i++)
 	{
-		for (int j = 0; j < GRIDSIZE; j++)
+		for (int j = 0; j <= GRIDSIZE; j++)
 		{
 			grid[i][j] = UNKNOWN;
 		}
@@ -38,6 +38,7 @@ int Sudoku::SudokuGenerate(int pos, long& count)
 		int y = pos % GRIDSIZE;
 		if (grid[x][y] == UNKNOWN)
 		{
+			//int base = x / 3 * 3;
 			for (int i = 0; i < GRIDSIZE; i++)
 			{
 				grid[x][y] = i + 1;
@@ -128,7 +129,7 @@ bool Sudoku::IsValid(int pos)
 		{
 			if (i == x && j == y)
 			{
-				continue;
+				return true;
 			}
 			if (grid[i][j] == grid[x][y])
 			{

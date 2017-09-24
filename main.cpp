@@ -14,6 +14,8 @@ void PrintUsage()
 
 int main(int argc, char* argv[])
 {
+	clock_t start, finish;
+	start = clock();
 	if (argc == 3)
 	{
 		// -c
@@ -58,6 +60,8 @@ int main(int argc, char* argv[])
 	{
 		PrintUsage();
 	}
+	finish = clock();
+	cout << finish - start << "/" << CLOCKS_PER_SEC << " (s) " << endl;
     return 0;
 }
 
