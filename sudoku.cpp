@@ -141,19 +141,30 @@ bool Sudoku::IsValid(int pos)
 
 void Sudoku::PrintSudoku()
 {
+	char temp[163];
+	for (int i = 0; i < GRIDSIZE * GRIDSIZE; i++)
+	{
+		temp[2 * i + 1] = ' ';
+	}
+	temp[162] = '\0';
 	for (int i = 0; i < GRIDSIZE; i++)
 	{
+		//char temp[162];
 		for (int j = 0; j < GRIDSIZE; j++)
 		{
-			output << grid[i][j];
+			temp[18 * i + 2 * j] = grid[i][j] + '0';
+			//output << grid[i][j];
 			if (j == GRIDSIZE - 1)
 			{
-				output << endl;
+				//output << endl;
+				temp[18 * i + 2 * j + 1] = '\n';
 			}
-			else
+			/*else
 			{
-				output << " ";
-			}
+				temp[18 * i + 2 * j + 1] = ' ';
+				//output << " ";
+			}*/
 		}
 	}
+	output << string(temp);
 }
