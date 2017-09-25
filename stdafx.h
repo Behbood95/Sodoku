@@ -18,5 +18,5 @@
 #include <string>
 #include <stdlib.h>
 #include "sudoku.h"
-#include <ctime>
+//#include <ctime>
 using namespace std;
