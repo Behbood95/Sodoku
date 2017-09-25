@@ -18,9 +18,14 @@ Sudoku::Sudoku(int n)
 	grid[0][0] = FLAGNUM;
 	this->n = n;
 	output.open(OUTFILE);
+	for (int i = 0; i < GRIDSIZE * GRIDSIZE; i++)
+	{
+		buff[2 * i + 1] = ' ';
+	}
+	buff[162] = '\0';
 }
 
-int Sudoku::SudokuGenerate(int pos, long& count)
+int Sudoku::SudokuGenerate(int pos, long& count, bool solve)
 {
 	if (pos == GRIDSIZE * GRIDSIZE)
 	{
@@ -38,13 +43,13 @@ int Sudoku::SudokuGenerate(int pos, long& count)
 		int y = pos % GRIDSIZE;
 		if (grid[x][y] == UNKNOWN)
 		{
-			//int base = x / 3 * 3;
+			int base = x / 3 * 3;
 			for (int i = 0; i < GRIDSIZE; i++)
 			{
-				grid[x][y] = i + 1;
-				if (IsValid(pos))
+				grid[x][y] = (i + base) % GRIDSIZE + 1;
+				if (IsValid(pos, solve))
 				{
-					if (SudokuGenerate(pos + 1, count) == 1)
+					if (SudokuGenerate(pos + 1, count, solve) == 1)
 					{
 						return 1;
 					}
@@ -54,7 +59,7 @@ int Sudoku::SudokuGenerate(int pos, long& count)
 		}
 		else
 		{
-			if (SudokuGenerate(pos + 1, count) == 1)
+			if (SudokuGenerate(pos + 1, count, solve) == 1)
 			{
 				return 1;
 			}
@@ -70,28 +75,32 @@ void Sudoku::SudokuSolve(char* path)
 	if (input)
 	{
 		int total = 0;
-		while (total < 1000000)
+		string temp[GRIDSIZE];
+		string str;
+		int line = 0;
+		while (total < 1000000 && getline(input, str))
 		{
-			// init grid
-			for (int i = 0; i < GRIDSIZE; i++)
+			temp[line] = str;
+			line++;
+			if (line == GRIDSIZE)
 			{
-				for (int j = 0; j < GRIDSIZE; j++)
+				for (int i = 0; i < GRIDSIZE; i++)
 				{
-					if (!(input >> grid[i][j]))
+					for (int j = 0; j < GRIDSIZE; j++)
 					{
-						return;
+						grid[i][j] = temp[i][j * 2] - '0';
 					}
 				}
-			}
-			if (total != 0)
-			{
+				getline(input, str);
+				line = 0;
+				total++;
+				// solve sudoku
+				long count = 0;
+				SudokuGenerate(0, count, true);
 				output << endl;
 			}
-			total++;
-			// solve sudoku
-			long count = 0;
-			SudokuGenerate(0, count);
 		}
+		cout << total << endl;
 	}
 	else
 	{
@@ -99,37 +108,61 @@ void Sudoku::SudokuSolve(char* path)
 	}
 }
 
-bool Sudoku::IsValid(int pos)
+bool Sudoku::IsValid(int pos, bool solve)
 {
 	int x = pos / GRIDSIZE;
 	int y = pos % GRIDSIZE;
 	int z = x / SQRTSIZE * SQRTSIZE + y / SQRTSIZE;
 	int leftTop = z / SQRTSIZE * GRIDSIZE * SQRTSIZE + (z % SQRTSIZE) * SQRTSIZE;
 	int rightDown = leftTop + (2 * GRIDSIZE + SQRTSIZE - 1);
+	int bound = solve ? GRIDSIZE : y;
 	// check row
-	for (int i = 0; i < y; i++)
+	for (int i = 0; i < bound; i++)
 	{
+		if (i == y)
+		{
+			continue;
+		}
 		if (grid[x][i] == grid[x][y])
 		{
 			return false;
 		}
 	}
 	// check column
-	for (int i = 0; i < x; i++)
+	bound = solve ? GRIDSIZE : x;
+	for (int i = 0; i < bound; i++)
 	{
+		if (i == x)
+		{
+			continue;
+		}
 		if (grid[i][y] == grid[x][y])
 		{
 			return false;
 		}
 	}
 	// check box
-	for (int i = leftTop / GRIDSIZE; i < (leftTop / GRIDSIZE + 3); i++)
+	int bound_x = leftTop / GRIDSIZE;
+	int bound_y = leftTop % GRIDSIZE;
+	if (bound_x % 3 != 0 || bound_y % 3 != 0 || bound_x > GRIDSIZE -3 || bound_y > GRIDSIZE - 3)
 	{
-		for (int j = leftTop % GRIDSIZE; j < (leftTop % GRIDSIZE + 3); j++)
+		cout << "error" << endl;
+		exit(0);
+	}
+	for (int i = bound_x; i < (bound_x + 3); i++)
+	{
+		for (int j = bound_y; j < (bound_y + 3); j++)
 		{
 			if (i == x && j == y)
 			{
-				return true;
+				if (solve)
+				{
+					continue;
+				}
+				else
+				{
+					return true;
+				}
 			}
 			if (grid[i][j] == grid[x][y])
 			{
@@ -142,30 +175,16 @@ bool Sudoku::IsValid(int pos)
 
 void Sudoku::PrintSudoku()
 {
-	char temp[163];
-	for (int i = 0; i < GRIDSIZE * GRIDSIZE; i++)
-	{
-		temp[2 * i + 1] = ' ';
-	}
-	temp[162] = '\0';
 	for (int i = 0; i < GRIDSIZE; i++)
 	{
-		//char temp[162];
 		for (int j = 0; j < GRIDSIZE; j++)
 		{
-			temp[18 * i + 2 * j] = grid[i][j] + '0';
-			//output << grid[i][j];
+			buff[18 * i + 2 * j] = grid[i][j] + '0';
 			if (j == GRIDSIZE - 1)
 			{
-				//output << endl;
-				temp[18 * i + 2 * j + 1] = '\n';
+				buff[18 * i + 2 * j + 1] = '\n';
 			}
-			/*else
-			{
-				temp[18 * i + 2 * j + 1] = ' ';
-				//output << " ";
-			}*/
 		}
 	}
-	output << string(temp);
+	output << string(buff);
 }

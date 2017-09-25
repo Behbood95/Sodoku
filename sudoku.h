@@ -8,12 +8,13 @@ class Sudoku
 {
 public:
 	Sudoku(int n);
-	int SudokuGenerate(int pos, long& count);
+	int SudokuGenerate(int pos, long& count, bool solve);
 	void SudokuSolve(char* path);
 private:
 	int grid[GRIDSIZE][GRIDSIZE];
 	std::ofstream output;
 	int n;
-	bool IsValid(int pos);
+	char buff[163];
+	bool IsValid(int pos, bool solve);
 	void PrintSudoku();
 };
