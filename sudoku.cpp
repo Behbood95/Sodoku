@@ -10,7 +10,7 @@ Sudoku::Sudoku(int n)
 {
 	for (int i = 0; i < GRIDSIZE; i++)
 	{
-		for (int j = 0; j <= GRIDSIZE; j++)
+		for (int j = 0; j < GRIDSIZE; j++)
 		{
 			grid[i][j] = UNKNOWN;
 		}
@@ -20,9 +20,14 @@ Sudoku::Sudoku(int n)
 	output.open(OUTFILE);
 	for (int i = 0; i < GRIDSIZE * GRIDSIZE; i++)
 	{
+		if ((i + 1) % 9 == 0)
+		{
+			buff[2 * i + 1] = '\n';
+			continue;
+		}
 		buff[2 * i + 1] = ' ';
 	}
-	buff[162] = '\0';
+	buff[162] = '\n';
 }
 
 int Sudoku::SudokuGenerate(int pos, long& count, bool solve)
@@ -35,7 +40,6 @@ int Sudoku::SudokuGenerate(int pos, long& count, bool solve)
 		{
 			return 1;
 		}
-		output << endl;
 	}
 	else
 	{
@@ -44,12 +48,12 @@ int Sudoku::SudokuGenerate(int pos, long& count, bool solve)
 		if (grid[x][y] == UNKNOWN)
 		{
 			int base = x / 3 * 3;
-			for (int i = 0; i < GRIDSIZE; i++)
+			for (int i = 0; i < GRIDSIZE; i++)         // try to fill the pos from 1-9
 			{
-				grid[x][y] = (i + base) % GRIDSIZE + 1;
-				if (IsValid(pos, solve))
+				grid[x][y] = (i + base) % GRIDSIZE + 1 + '0';
+				if (IsValid(pos, solve))               // if the number is valid
 				{
-					if (SudokuGenerate(pos + 1, count, solve) == 1)
+					if (SudokuGenerate(pos + 1, count, solve) == 1)       // try to fill next pos
 					{
 						return 1;
 					}
@@ -68,7 +72,7 @@ int Sudoku::SudokuGenerate(int pos, long& count, bool solve)
 	return 0;
 }
 
-void Sudoku::SudokuSolve(char* path)
+int Sudoku::SudokuSolve(char* path)
 {
 	ifstream input;
 	input.open(path);
@@ -78,6 +82,7 @@ void Sudoku::SudokuSolve(char* path)
 		string temp[GRIDSIZE];
 		string str;
 		int line = 0;
+		bool exc = false;     // wrong input such as 'a','.',etc. in the input file
 		while (total < 1000000 && getline(input, str))
 		{
 			temp[line] = str;
@@ -88,24 +93,35 @@ void Sudoku::SudokuSolve(char* path)
 				{
 					for (int j = 0; j < GRIDSIZE; j++)
 					{
-						grid[i][j] = temp[i][j * 2] - '0';
+						grid[i][j] = temp[i][2 * j];
+						if(grid[i][j] < '0' || grid[i][j] > '9')
+						{ 
+							exc = true;
+							break;
+						}
 					}
 				}
 				getline(input, str);
 				line = 0;
+				if (exc)
+				{
+					exc = false;
+					continue;
+				}
 				total++;
 				// solve sudoku
 				long count = 0;
 				SudokuGenerate(0, count, true);
-				output << endl;
 			}
 		}
-		cout << total << endl;
+		//cout << total << endl;
 	}
 	else
 	{
 		cout << NOSUCHFILE << string(path) << endl;
+		return 0;
 	}
+	return 1;
 }
 
 bool Sudoku::IsValid(int pos, bool solve)
@@ -140,7 +156,7 @@ bool Sudoku::IsValid(int pos, bool solve)
 		{
 			return false;
 		}
-	}
+	}	
 	// check box
 	int bound_x = leftTop / GRIDSIZE;
 	int bound_y = leftTop % GRIDSIZE;
@@ -179,12 +195,8 @@ void Sudoku::PrintSudoku()
 	{
 		for (int j = 0; j < GRIDSIZE; j++)
 		{
-			buff[18 * i + 2 * j] = grid[i][j] + '0';
-			if (j == GRIDSIZE - 1)
-			{
-				buff[18 * i + 2 * j + 1] = '\n';
-			}
+			buff[18 * i + 2 * j] = grid[i][j];
 		}
 	}
-	output << string(buff);
+	output << buff;
 }
