@@ -3,8 +3,6 @@
 
 **核心算法**：回溯法
 
-**USAGE:** 
-
+>**USAGE:** 
 sudoku.exe -c N(1 <= N <= 100,0000)
-
 sudoku.exe -s absolute_path_of_puzzlefile
